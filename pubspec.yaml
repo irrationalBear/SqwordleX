@@ -1,0 +1,31 @@
+name: sqwordlex
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.8.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  provider: ^6.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/data/
+    - assets/data/words3.json
+    - assets/data/words4.json
+    - assets/data/words5.json
+    - assets/data/words6.json
+    - assets/data/words7.json
+    - assets/data/words8.json
+    - assets/data/matches-1.json
+    - assets/data/matches-2.json
+    - assets/data/matches-3.json
