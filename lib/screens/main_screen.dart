@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'gameplay_screen.dart';
+import 'game_select_screen.dart';
+import 'daily_challenge_screen.dart';
+import 'weekly_challenge_screen.dart';
 
-class GameSelectScreen extends StatelessWidget {
-  const GameSelectScreen({super.key});
+class MainScreen extends StatelessWidget {
+  const MainScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('SquordleX - Select Difficulty')),
+      appBar: AppBar(title: const Text('SqwordleX')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -17,12 +19,11 @@ class GameSelectScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        const GameplayScreen(difficulty: 'easy'),
+                    builder: (context) => const GameSelectScreen(),
                   ),
                 );
               },
-              child: const Text('Easy'),
+              child: const Text('Play'),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
@@ -30,12 +31,11 @@ class GameSelectScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        const GameplayScreen(difficulty: 'medium'),
+                    builder: (context) => const DailyChallengeScreen(),
                   ),
                 );
               },
-              child: const Text('Medium'),
+              child: const Text('Daily Challenge'),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
@@ -43,12 +43,11 @@ class GameSelectScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        const GameplayScreen(difficulty: 'hard'),
+                    builder: (context) => const WeeklyChallengeScreen(),
                   ),
                 );
               },
-              child: const Text('Hard'),
+              child: const Text('Weekly Challenge'),
             ),
           ],
         ),
