@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GameState extends ChangeNotifier {
   static const int maxGuessesEasy = 6;
@@ -11,6 +12,7 @@ class GameState extends ChangeNotifier {
   String matchFile = 'matches-1.json';
   String? difficulty;
   DateTime startTime = DateTime.now();
+  DateTime? currentChallengeDate;
 
   List<String> wordList3 = [];
   List<String> wordList4 = [];
@@ -95,15 +97,31 @@ class GameState extends ChangeNotifier {
     }
   }
 
-  Future<void> newGame({String? difficulty}) async {
+  Future<void> newGame({
+    String? difficulty,
+    int? fixedSeed,
+    DateTime? challengeDate,
+  }) async {
+    currentChallengeDate = challengeDate;
+
+    late String chosenDifficulty;
+    late Random random;
+
     isGameOver = false;
     isContinuing = false;
-    if (difficulty != null) {
-      await loadMatchFile(difficulty);
+
+    if (fixedSeed != null) {
+      random = Random(fixedSeed);
+      final int diffIndex = random.nextInt(3);
+      chosenDifficulty = ['Easy', 'Medium', 'Hard'][diffIndex];
+    } else {
+      chosenDifficulty = difficulty ?? 'Easy';
+      random = Random();
     }
+
+    await loadMatchFile(chosenDifficulty);
     if (matches.isEmpty) return;
 
-    final random = Random();
     final match = matches[random.nextInt(matches.length)];
     wordLengthTopBottom = match[0];
     horizontalInset = match[1];
@@ -140,6 +158,30 @@ class GameState extends ChangeNotifier {
     hintedLetters = List.generate(4, (_) => List.filled(maxLength, null));
     startTime = DateTime.now();
     notifyListeners();
+  }
+
+  Future<void> markDailyCompleted() async {
+    if (currentChallengeDate == null) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final String key =
+        '${currentChallengeDate!.year}-'
+        '${currentChallengeDate!.month.toString().padLeft(2, '0')}-'
+        '${currentChallengeDate!.day.toString().padLeft(2, '0')}';
+
+    final List<String> list =
+        prefs.getStringList('completed_daily_dates') ?? [];
+    if (!list.contains(key)) {
+      list.add(key);
+      await prefs.setStringList('completed_daily_dates', list);
+    }
+
+    currentChallengeDate = null;
+    notifyListeners();
+  }
+
+  String _dateKey(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 
   void setCurrentSide(int side) {

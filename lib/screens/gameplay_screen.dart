@@ -1,12 +1,13 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
+
 import '../models/game_state.dart';
 import '../widgets/word_grid.dart';
 import '../widgets/keyboard.dart';
 import '../widgets/guess_list.dart';
-import 'main_screen.dart';
 import 'endgame_screen.dart';
 
 class CurrentGuessDisplay extends StatelessWidget {
@@ -55,10 +56,18 @@ class CurrentGuessDisplay extends StatelessWidget {
 
 class GameplayScreen extends StatefulWidget {
   final String? difficulty;
-  const GameplayScreen({super.key, this.difficulty});
+  final int? fixedSeed;
+  final DateTime? dailyDate;
+
+  const GameplayScreen({
+    super.key,
+    this.difficulty,
+    this.fixedSeed,
+    this.dailyDate,
+  });
 
   @override
-  _GameplayScreenState createState() => _GameplayScreenState();
+  State<GameplayScreen> createState() => _GameplayScreenState();
 }
 
 class _GameplayScreenState extends State<GameplayScreen>
@@ -78,16 +87,22 @@ class _GameplayScreenState extends State<GameplayScreen>
     super.initState();
     _initializeAnimations();
     final gameState = Provider.of<GameState>(context, listen: false);
-    if (widget.difficulty != null) {
+    if (widget.fixedSeed != null || widget.difficulty != null) {
       setState(() => _isInitializing = true);
-      gameState.newGame(difficulty: widget.difficulty).then((_) {
-        if (mounted) {
-          setState(() => _isInitializing = false);
-          SchedulerBinding.instance.addPostFrameCallback((_) {
-            gameState.setCurrentSide(0);
+      gameState
+          .newGame(
+            difficulty: widget.difficulty,
+            fixedSeed: widget.fixedSeed,
+            challengeDate: widget.dailyDate,
+          )
+          .then((_) {
+            if (mounted) {
+              setState(() => _isInitializing = false);
+              SchedulerBinding.instance.addPostFrameCallback((_) {
+                gameState.setCurrentSide(0);
+              });
+            }
           });
-        }
-      });
     } else {
       SchedulerBinding.instance.addPostFrameCallback((_) {
         gameState.setCurrentSide(0);
@@ -226,6 +241,14 @@ class _GameplayScreenState extends State<GameplayScreen>
         if (gameState.isGameOver) {
           final timeElapsed = DateTime.now().difference(gameState.startTime);
           final isPuzzleSolved = gameState.isPuzzleSolved();
+
+          // ONLY mark as completed if the puzzle was actually solved (won)
+          if (isPuzzleSolved) {
+            SchedulerBinding.instance.addPostFrameCallback((_) {
+              gameState.markDailyCompleted();
+            });
+          }
+
           return EndGameScreen(
             isPuzzleSolved: isPuzzleSolved,
             difficulty: gameState.difficulty,
