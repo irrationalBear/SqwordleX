@@ -5,14 +5,18 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GameState extends ChangeNotifier {
-  static const int maxGuessesEasy = 6;
-  static const int maxGuessesMedium = 7;
-  static const int maxGuessesHard = 8;
+  static const int maxGuessesEasy = 5;
+  static const int maxGuessesMedium = 6;
+  static const int maxGuessesHard = 7;
+  static const int puzzlesPerWeek = 36;
+
   int maxGuesses = maxGuessesMedium;
   String matchFile = 'matches-1.json';
   String? difficulty;
   DateTime startTime = DateTime.now();
   DateTime? currentChallengeDate;
+  int? currentWeeklyId;
+  int? currentWeeklyPuzzleIndex;
 
   List<String> wordList3 = [];
   List<String> wordList4 = [];
@@ -101,8 +105,12 @@ class GameState extends ChangeNotifier {
     String? difficulty,
     int? fixedSeed,
     DateTime? challengeDate,
+    int? weeklyId,
+    int? weeklyPuzzleIndex,
   }) async {
     currentChallengeDate = challengeDate;
+    currentWeeklyId = weeklyId;
+    currentWeeklyPuzzleIndex = weeklyPuzzleIndex;
 
     late String chosenDifficulty;
     late Random random;
@@ -180,6 +188,27 @@ class GameState extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> markWeeklyPuzzleCompleted() async {
+    if (currentWeeklyId == null || currentWeeklyPuzzleIndex == null) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final String jsonStr = prefs.getString('weekly_completed') ?? '{}';
+    final Map<String, dynamic> decoded = jsonDecode(jsonStr);
+
+    final String key = currentWeeklyId.toString();
+    List<bool> list = decoded[key] != null
+        ? (decoded[key] as List).cast<bool>()
+        : List<bool>.filled(puzzlesPerWeek, false);
+
+    list[currentWeeklyPuzzleIndex!] = true;
+
+    decoded[key] = list;
+    await prefs.setString('weekly_completed', jsonEncode(decoded));
+
+    currentWeeklyId = null;
+    currentWeeklyPuzzleIndex = null;
+  }
+
   String _dateKey(DateTime date) {
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
@@ -191,7 +220,10 @@ class GameState extends ChangeNotifier {
   }
 
   void addLetter(String letter) {
+    final isSolved = guesses[currentSide].contains(targetWords[currentSide]);
+
     if (!isGameOver &&
+        !isSolved &&
         currentGuess.length <
             (currentSide < 2 ? wordLengthTopBottom : wordLengthLeftRight)) {
       currentGuess += letter;

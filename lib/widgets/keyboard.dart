@@ -6,6 +6,7 @@ class Keyboard extends StatelessWidget {
   final bool isGameOver;
   final String currentGuess;
   final int wordLength;
+  final List<List<String>> allGuesses;
 
   const Keyboard({
     super.key,
@@ -14,7 +15,15 @@ class Keyboard extends StatelessWidget {
     required this.isGameOver,
     required this.currentGuess,
     required this.wordLength,
+    required this.allGuesses,
   });
+
+  bool _wordSolved(String word) {
+    int wordIndex = targetWords.indexOf(word);
+    if (wordIndex < 0) return false;
+
+    return (allGuesses[wordIndex].contains(word));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +45,10 @@ class Keyboard extends StatelessWidget {
                   (key == 'ENTER'
                       ? currentGuess.length == wordLength
                       : key == 'BACK' ||
-                            targetWords.any((word) => word.contains(key)));
+                            targetWords.any(
+                              (word) =>
+                                  word.contains(key) && !_wordSolved(word),
+                            ));
               return Padding(
                 padding: const EdgeInsets.all(2.0),
                 child: ElevatedButton(

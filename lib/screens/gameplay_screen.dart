@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -58,12 +57,15 @@ class GameplayScreen extends StatefulWidget {
   final String? difficulty;
   final int? fixedSeed;
   final DateTime? dailyDate;
-
+  final int? weeklyId;
+  final int? weeklyPuzzleIndex;
   const GameplayScreen({
     super.key,
     this.difficulty,
     this.fixedSeed,
     this.dailyDate,
+    this.weeklyId,
+    this.weeklyPuzzleIndex,
   });
 
   @override
@@ -94,6 +96,8 @@ class _GameplayScreenState extends State<GameplayScreen>
             difficulty: widget.difficulty,
             fixedSeed: widget.fixedSeed,
             challengeDate: widget.dailyDate,
+            weeklyId: widget.weeklyId,
+            weeklyPuzzleIndex: widget.weeklyPuzzleIndex,
           )
           .then((_) {
             if (mounted) {
@@ -246,6 +250,7 @@ class _GameplayScreenState extends State<GameplayScreen>
           if (isPuzzleSolved) {
             SchedulerBinding.instance.addPostFrameCallback((_) {
               gameState.markDailyCompleted();
+              gameState.markWeeklyPuzzleCompleted();
             });
           }
 
@@ -367,6 +372,7 @@ class _GameplayScreenState extends State<GameplayScreen>
                 isGameOver: gameState.isGameOver,
                 currentGuess: gameState.currentGuess,
                 wordLength: wordLength,
+                allGuesses: gameState.guesses,
               ),
             ],
           ),
