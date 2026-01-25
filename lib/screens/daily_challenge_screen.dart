@@ -89,6 +89,12 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen>
     if (mounted) {
       setState(() {
         completedDates = list.toSet();
+        final bool isCompleted = completedDates.contains(
+          _dateKey(DateTime.now()),
+        );
+        if (!isCompleted) {
+          selectedDate = DateTime.now();
+        }
       });
     }
   }

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
@@ -267,8 +266,10 @@ class _GameplayScreenState extends State<GameplayScreen>
             ? gameState.wordLengthTopBottom
             : gameState.wordLengthLeftRight;
 
+        String title = 'Play SqwordleX (${gameState.difficulty})';
+
         return Scaffold(
-          appBar: AppBar(title: const Text('SqwordleX Gameplay')),
+          appBar: AppBar(title: Text(title)),
           body: Column(
             children: [
               Stack(
