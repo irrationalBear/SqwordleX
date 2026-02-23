@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -15,9 +17,11 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
+class _MainScreenState extends State<MainScreen>
+    with WidgetsBindingObserver, RouteAware {
   bool dailyHasUnplayed = true;
   bool weeklyHasUnplayed = true;
+  int curDay = DateTime.now().day;
 
   @override
   void initState() {
@@ -25,6 +29,15 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     _loadDailyStatus();
     _loadWeeklyStatus();
+
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      int day = DateTime.now().day;
+      if (day != curDay) {
+        _loadDailyStatus();
+        _loadWeeklyStatus();
+        curDay = day;
+      }
+    });
   }
 
   @override
@@ -39,6 +52,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    _loadDailyStatus();
+    _loadWeeklyStatus();
   }
 
   Future<void> _loadDailyStatus() async {
@@ -167,76 +186,91 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 200.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Center(
-                child: Text(
-                  'SqwordleX',
-                  style: TextStyle(
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2.0,
+        child: Center(
+          child: FittedBox(
+            fit: BoxFit.contain,
+            alignment: Alignment.center,
+            child: SizedBox(
+              width:
+                  450.0, // ← your preferred max width (you had 300 earlier — change to 300 if you prefer)
+              height:
+                  900.0, // ← tune this: run in portrait, measure the natural height of the column (add a temporary print or use DevTools), then set ~50px higher than that value
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                child: IntrinsicWidth(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text(
+                        'SqwordleX',
+                        style: TextStyle(
+                          fontSize: 48,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2.0,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 80),
+                      _buildMenuButton(
+                        text: 'Play Game',
+                        icon: Icons.play_circle_outlined,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const GameSelectScreen(),
+                            ),
+                          );
+                        },
+                        badgeType: BadgeType.none,
+                      ),
+                      const SizedBox(height: 40),
+                      _buildMenuButton(
+                        text: 'Daily Challenge',
+                        icon: Icons.calendar_today,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const DailyChallengeScreen(),
+                            ),
+                          ).then((_) {
+                            _loadDailyStatus();
+                            _loadWeeklyStatus();
+                          });
+                        },
+                        badgeType: dailyHasUnplayed
+                            ? BadgeType.unplayed
+                            : BadgeType.completed,
+                      ),
+                      const SizedBox(height: 40),
+                      _buildMenuButton(
+                        text: 'Weekly Challenge',
+                        icon: Icons.date_range,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const WeeklyChallengeScreen(),
+                            ),
+                          ).then((_) {
+                            _loadDailyStatus();
+                            _loadWeeklyStatus();
+                          });
+                        },
+                        badgeType: weeklyHasUnplayed
+                            ? BadgeType.unplayed
+                            : BadgeType.completed,
+                      ),
+                      const SizedBox(height: 40),
+                    ],
                   ),
                 ),
               ),
-
-              const SizedBox(height: 80),
-              _buildMenuButton(
-                text: 'Play Game',
-                icon: Icons.play_circle_outlined,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const GameSelectScreen(),
-                    ),
-                  );
-                },
-                badgeType: BadgeType.none,
-              ),
-              const SizedBox(height: 40),
-              _buildMenuButton(
-                text: 'Daily Challenge',
-                icon: Icons.calendar_today,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const DailyChallengeScreen(),
-                    ),
-                  ).then((_) {
-                    _loadDailyStatus();
-                    _loadWeeklyStatus();
-                  });
-                },
-                badgeType: dailyHasUnplayed
-                    ? BadgeType.unplayed
-                    : BadgeType.completed,
-              ),
-              const SizedBox(height: 40),
-              _buildMenuButton(
-                text: 'Weekly Challenge',
-                icon: Icons.date_range,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const WeeklyChallengeScreen(),
-                    ),
-                  ).then((_) {
-                    _loadDailyStatus();
-                    _loadWeeklyStatus();
-                  });
-                },
-                badgeType: weeklyHasUnplayed
-                    ? BadgeType.unplayed
-                    : BadgeType.completed,
-              ),
-            ],
+            ),
           ),
         ),
       ),

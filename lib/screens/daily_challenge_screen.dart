@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart'; // For routeObserver
@@ -53,7 +54,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen>
   void initState() {
     super.initState();
     currentMonth = DateTime.now();
-    selectedDate = null; // Explicitly null on fresh entry
+    selectedDate = null;
     _loadCompletedDates();
   }
 
@@ -74,7 +75,6 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen>
 
   @override
   void didPopNext() {
-    // Reload completed dates AND clear selection whenever we return to this screen
     _loadCompletedDates();
     if (mounted) {
       setState(() {
@@ -89,12 +89,6 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen>
     if (mounted) {
       setState(() {
         completedDates = list.toSet();
-        final bool isCompleted = completedDates.contains(
-          _dateKey(DateTime.now()),
-        );
-        if (!isCompleted) {
-          selectedDate = DateTime.now();
-        }
       });
     }
   }
@@ -141,10 +135,16 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen>
 
       final String difficulty = getDifficultyForDate(thisDate);
 
+      final String iconPath = difficulty == 'Easy'
+          ? 'assets/icons/icon_easy_game.svg'
+          : difficulty == 'Medium'
+          ? 'assets/icons/icon_med_game.svg'
+          : 'assets/icons/icon_hard_game.svg';
+
       dayTiles.add(
         Card(
           color: isCompleted
-              ? Colors.grey[300]
+              ? Colors.grey[200]
               : (isSelected ? Colors.blue[100] : Colors.white),
           elevation: isCompleted ? 1 : 4,
           child: InkWell(
@@ -155,41 +155,51 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen>
                       selectedDate = thisDate;
                     });
                   },
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '$day',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: isFuture ? Colors.grey[600] : Colors.black,
-                      decoration: isCompleted
-                          ? TextDecoration.lineThrough
-                          : null,
-                    ),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: Opacity(
+                    opacity: 0.40,
+                    child: SvgPicture.asset(iconPath, fit: BoxFit.contain),
                   ),
-                  if (isToday)
-                    const Text(
-                      'Today',
-                      style: TextStyle(fontSize: 10, color: Colors.red),
-                    ),
-                  Text(
-                    difficulty,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: isFuture ? Colors.grey[600] : Colors.black,
-                    ),
+                ),
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '$day',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: isFuture ? Colors.grey[600] : Colors.black,
+                          decoration: isCompleted
+                              ? TextDecoration.lineThrough
+                              : null,
+                        ),
+                      ),
+                      if (isToday)
+                        const Text(
+                          'Today',
+                          style: TextStyle(fontSize: 10, color: Colors.red),
+                        ),
+                      Text(
+                        difficulty,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isFuture ? Colors.grey[600] : Colors.black,
+                        ),
+                      ),
+                      if (isCompleted)
+                        const Icon(
+                          Icons.check_circle,
+                          color: Colors.green,
+                          size: 20,
+                        ),
+                    ],
                   ),
-                  if (isCompleted)
-                    const Icon(
-                      Icons.check_circle,
-                      color: Colors.green,
-                      size: 20,
-                    ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -200,7 +210,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen>
       appBar: AppBar(title: const Text('Daily Challenges')),
       body: Column(
         children: [
-          // Month navigation (unlimited past as discussed)
+          // Month navigation
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Row(

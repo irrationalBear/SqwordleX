@@ -11,6 +11,7 @@ dependencies:
     sdk: flutter
   provider: ^6.0.0
   shared_preferences: ^2.3.0
+  flutter_svg: ^2.0.10+1
 
 dev_dependencies:
   flutter_test:
@@ -30,3 +31,4 @@ flutter:
     - assets/data/matches-1.json
     - assets/data/matches-2.json
     - assets/data/matches-3.json
+    - assets/icons/

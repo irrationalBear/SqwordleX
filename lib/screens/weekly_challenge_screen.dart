@@ -1,12 +1,11 @@
-// Updated File: lib/screens/weekly_challenge_screen.dart (full file)
 import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart'; // For routeObserver
-import '../models/game_state.dart';
 import 'gameplay_screen.dart';
 
 DateTime weeklyEpoch = DateTime(2026, 1, 1);
@@ -247,42 +246,70 @@ class _WeeklyChallengeScreenState extends State<WeeklyChallengeScreen>
                 final bool isCompleted = currentCompleted[index];
                 final String difficulty = getDifficultyForPuzzle(weekId, index);
 
+                final String iconPath = difficulty == 'Easy'
+                    ? 'assets/icons/icon_easy_game.svg'
+                    : difficulty == 'Medium'
+                    ? 'assets/icons/icon_med_game.svg'
+                    : 'assets/icons/icon_hard_game.svg';
+
                 return Card(
-                  color: isCompleted ? Colors.grey[300] : Colors.green[50],
-                  elevation: isCompleted ? 2 : 6,
+                  color: nextIndex == null
+                      ? Colors.deepOrange[50]
+                      : isCompleted
+                      ? Colors.grey[200]
+                      : Colors.green[50],
+                  elevation: nextIndex == null
+                      ? 4
+                      : isCompleted
+                      ? 2
+                      : 6,
+                  shadowColor: nextIndex == null ? Colors.green : null,
                   child: InkWell(
                     onTap: () => _playPuzzle(index),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            difficulty,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              decoration: isCompleted
-                                  ? TextDecoration.lineThrough
-                                  : null,
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: Opacity(
+                            opacity: 0.40,
+                            child: SvgPicture.asset(
+                              iconPath,
+                              fit: BoxFit.contain,
                             ),
                           ),
-                          if (isCompleted)
-                            const Icon(
-                              Icons.check_circle,
-                              color: Colors.green,
-                              size: 28,
-                            ),
-                          if (!isCompleted && isCurrentWeek)
-                            const Text(
-                              'New',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.red,
-                                fontWeight: FontWeight.bold,
+                        ),
+                        Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                difficulty,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  decoration: isCompleted
+                                      ? TextDecoration.lineThrough
+                                      : null,
+                                ),
                               ),
-                            ),
-                        ],
-                      ),
+                              if (isCompleted)
+                                const Icon(
+                                  Icons.check_circle,
+                                  color: Colors.green,
+                                  size: 28,
+                                ),
+                              if (!isCompleted && isCurrentWeek)
+                                const Text(
+                                  'New',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 );
