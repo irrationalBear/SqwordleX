@@ -82,7 +82,7 @@ class _MainScreenState extends State<MainScreen>
       Duration(days: now.weekday - DateTime.monday),
     );
     int weekID = (curWeek.difference(DateTime(2026, 1, 1)).inDays ~/ 7) + 1;
-    bool finishedPlay = false;
+    bool finishedPlay = true;
 
     final prefs = await SharedPreferences.getInstance();
     final String jsonStr = prefs.getString('weekly_completed') ?? '{}';
@@ -92,9 +92,9 @@ class _MainScreenState extends State<MainScreen>
       if (int.parse(strKey) == weekID) {
         final List<dynamic> dynList = value as List;
         final List<bool> boolList = dynList.map((e) => e as bool).toList();
-        if (boolList.length == puzzlesPerWeek) {
-          finishedPlay = true;
-        }
+        boolList.forEach((isComplete) {
+          if (!isComplete) finishedPlay = false;
+        });
       }
     });
 

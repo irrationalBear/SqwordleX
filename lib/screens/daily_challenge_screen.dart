@@ -146,7 +146,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen>
           color: isCompleted
               ? Colors.grey[200]
               : (isSelected ? Colors.blue[100] : Colors.white),
-          elevation: isCompleted ? 1 : 4,
+          elevation: isCompleted || isFuture ? 1 : 4,
           child: InkWell(
             onTap: isFuture
                 ? null
@@ -208,111 +208,131 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen>
 
     return Scaffold(
       appBar: AppBar(title: const Text('Daily Challenges')),
-      body: Column(
-        children: [
-          // Month navigation
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.chevron_left),
-                  onPressed: () {
-                    setState(() {
-                      currentMonth = DateTime(
-                        currentMonth.year,
-                        currentMonth.month - 1,
-                      );
-                      selectedDate = null;
-                    });
-                  },
-                ),
-                Text(
-                  '${_getMonthName(currentMonth.month)} ${currentMonth.year}',
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.chevron_right),
-                  onPressed:
-                      currentMonth.month == today.month &&
-                          currentMonth.year == today.year
-                      ? null
-                      : () {
-                          setState(() {
-                            currentMonth = DateTime(
-                              currentMonth.year,
-                              currentMonth.month + 1,
-                            );
-                            selectedDate = null;
-                          });
-                        },
-                ),
-              ],
-            ),
-          ),
-          // Weekday headers
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 7,
-            children: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-                .map(
-                  (d) => Center(
-                    child: Text(
-                      d,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                )
-                .toList(),
-          ),
-          // Calendar grid
-          Expanded(
-            child: GridView.count(
-              crossAxisCount: 7,
-              padding: const EdgeInsets.all(8),
-              mainAxisSpacing: 6,
-              crossAxisSpacing: 6,
-              children: dayTiles,
-            ),
-          ),
-          // Play button
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 56),
-              ),
-              onPressed: (selectedDate == null || selectedDate!.isAfter(today))
-                  ? null
-                  : () {
-                      final int seed =
-                          selectedDate!.year * 10000 +
-                          selectedDate!.month * 100 +
-                          selectedDate!.day;
-
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => GameplayScreen(
-                            fixedSeed: seed,
-                            dailyDate: selectedDate,
+      body: SafeArea(
+        child: Center(
+          child: FittedBox(
+            fit: BoxFit.contain,
+            alignment: Alignment.center,
+            child: SizedBox(
+              width:
+                  820.0, // ← adjust to your preferred max portrait width (360–420 common)
+              height:
+                  900.0, // ← tune this: portrait natural height + margin (start here, measure & adjust)
+              child: Column(
+                children: [
+                  // Month navigation
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.chevron_left),
+                          onPressed: () {
+                            setState(() {
+                              currentMonth = DateTime(
+                                currentMonth.year,
+                                currentMonth.month - 1,
+                              );
+                              selectedDate = null;
+                            });
+                          },
+                        ),
+                        Text(
+                          '${_getMonthName(currentMonth.month)} ${currentMonth.year}',
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      );
-                    },
-              child: Text(
-                selectedDate == null
-                    ? 'Select a day to play'
-                    : 'Play ${_getMonthName(selectedDate!.month)} ${selectedDate!.day}',
-                style: const TextStyle(fontSize: 18),
+                        IconButton(
+                          icon: const Icon(Icons.chevron_right),
+                          onPressed:
+                              currentMonth.month == DateTime.now().month &&
+                                  currentMonth.year == DateTime.now().year
+                              ? null
+                              : () {
+                                  setState(() {
+                                    currentMonth = DateTime(
+                                      currentMonth.year,
+                                      currentMonth.month + 1,
+                                    );
+                                    selectedDate = null;
+                                  });
+                                },
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Weekday headers
+                  GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    childAspectRatio: 1.5,
+                    crossAxisCount: 7,
+                    children: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+                        .map(
+                          (d) => Center(
+                            child: Text(
+                              d,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                  // Calendar grid
+                  Expanded(
+                    child: GridView.count(
+                      crossAxisCount: 7,
+                      padding: const EdgeInsets.all(8),
+                      mainAxisSpacing: 6,
+                      crossAxisSpacing: 6,
+                      children: dayTiles,
+                    ),
+                  ),
+                  // Play button area
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 56),
+                      ),
+                      onPressed:
+                          (selectedDate == null ||
+                              selectedDate!.isAfter(DateTime.now()))
+                          ? null
+                          : () {
+                              final int seed =
+                                  selectedDate!.year * 10000 +
+                                  selectedDate!.month * 100 +
+                                  selectedDate!.day;
+
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => GameplayScreen(
+                                    fixedSeed: seed,
+                                    dailyDate: selectedDate,
+                                  ),
+                                ),
+                              );
+                            },
+                      child: Text(
+                        selectedDate == null
+                            ? 'Select a day to play'
+                            : 'Play ${_getMonthName(selectedDate!.month)} ${selectedDate!.day}',
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }

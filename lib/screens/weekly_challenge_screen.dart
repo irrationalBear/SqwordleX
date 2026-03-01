@@ -174,167 +174,183 @@ class _WeeklyChallengeScreenState extends State<WeeklyChallengeScreen>
 
     return Scaffold(
       appBar: AppBar(title: const Text('Weekly Challenges')),
-      body: Column(
-        children: [
-          // Week navigation and info
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.chevron_left),
-                      onPressed: canGoPrevious
-                          ? () {
-                              setState(() {
-                                currentWeekStart = previousWeekStart;
-                              });
-                            }
-                          : null,
-                    ),
-                    Column(
+      body: SafeArea(
+        child: Center(
+          child: FittedBox(
+            fit: BoxFit.contain,
+            alignment: Alignment.center,
+            child: SizedBox(
+              width: 820.0, // ← match your other screens
+              height:
+                  1100.0, // ← tune this: portrait natural height + margin (start here, measure & adjust)
+              child: Column(
+                children: [
+                  // Week navigation and info
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
                       children: [
-                        Text(
-                          'Week of ${formatWeekRange(currentWeekStart)}',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        if (isCurrentWeek)
-                          const Text(
-                            'Current Week',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.chevron_left),
+                              onPressed: canGoPrevious
+                                  ? () {
+                                      setState(() {
+                                        currentWeekStart = previousWeekStart;
+                                      });
+                                    }
+                                  : null,
                             ),
-                          ),
-                      ],
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.chevron_right),
-                      onPressed: canGoNext
-                          ? () {
-                              setState(() {
-                                currentWeekStart = nextWeekStart;
-                              });
-                            }
-                          : null,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Completed $completedCount / $puzzlesPerWeek',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ],
-            ),
-          ),
-          // 6x6 grid
-          Expanded(
-            child: GridView.count(
-              crossAxisCount: 6,
-              padding: const EdgeInsets.all(8),
-              mainAxisSpacing: 6,
-              crossAxisSpacing: 6,
-              childAspectRatio: 1.0,
-              children: List.generate(puzzlesPerWeek, (index) {
-                final bool isCompleted = currentCompleted[index];
-                final String difficulty = getDifficultyForPuzzle(weekId, index);
-
-                final String iconPath = difficulty == 'Easy'
-                    ? 'assets/icons/icon_easy_game.svg'
-                    : difficulty == 'Medium'
-                    ? 'assets/icons/icon_med_game.svg'
-                    : 'assets/icons/icon_hard_game.svg';
-
-                return Card(
-                  color: nextIndex == null
-                      ? Colors.deepOrange[50]
-                      : isCompleted
-                      ? Colors.grey[200]
-                      : Colors.green[50],
-                  elevation: nextIndex == null
-                      ? 4
-                      : isCompleted
-                      ? 2
-                      : 6,
-                  shadowColor: nextIndex == null ? Colors.green : null,
-                  child: InkWell(
-                    onTap: () => _playPuzzle(index),
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          child: Opacity(
-                            opacity: 0.40,
-                            child: SvgPicture.asset(
-                              iconPath,
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                        ),
-                        Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                difficulty,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  decoration: isCompleted
-                                      ? TextDecoration.lineThrough
-                                      : null,
-                                ),
-                              ),
-                              if (isCompleted)
-                                const Icon(
-                                  Icons.check_circle,
-                                  color: Colors.green,
-                                  size: 28,
-                                ),
-                              if (!isCompleted && isCurrentWeek)
-                                const Text(
-                                  'New',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.red,
+                            Column(
+                              children: [
+                                Text(
+                                  'Week of ${formatWeekRange(currentWeekStart)}',
+                                  style: const TextStyle(
+                                    fontSize: 20,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                            ],
-                          ),
+                                if (isCurrentWeek)
+                                  const Text(
+                                    'Current Week',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.chevron_right),
+                              onPressed: canGoNext
+                                  ? () {
+                                      setState(() {
+                                        currentWeekStart = nextWeekStart;
+                                      });
+                                    }
+                                  : null,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Completed $completedCount / $puzzlesPerWeek',
+                          style: const TextStyle(fontSize: 16),
                         ),
                       ],
                     ),
                   ),
-                );
-              }),
+                  // 6x6 grid
+                  Expanded(
+                    child: GridView.count(
+                      crossAxisCount: 6,
+                      padding: const EdgeInsets.all(8),
+                      mainAxisSpacing: 6,
+                      crossAxisSpacing: 6,
+                      childAspectRatio: 1.0,
+                      children: List.generate(puzzlesPerWeek, (index) {
+                        final bool isCompleted = currentCompleted[index];
+                        final String difficulty = getDifficultyForPuzzle(
+                          weekId,
+                          index,
+                        );
+
+                        final String iconPath = difficulty == 'Easy'
+                            ? 'assets/icons/icon_easy_game.svg'
+                            : difficulty == 'Medium'
+                            ? 'assets/icons/icon_med_game.svg'
+                            : 'assets/icons/icon_hard_game.svg';
+
+                        return Card(
+                          color: nextIndex == null
+                              ? Colors.deepOrange[50]
+                              : isCompleted
+                              ? Colors.grey[200]
+                              : Colors.green[50],
+                          elevation: nextIndex == null
+                              ? 4
+                              : isCompleted
+                              ? 2
+                              : 6,
+                          shadowColor: nextIndex == null ? Colors.green : null,
+                          child: InkWell(
+                            onTap: () => _playPuzzle(index),
+                            child: Stack(
+                              children: [
+                                Positioned.fill(
+                                  child: Opacity(
+                                    opacity: 0.40,
+                                    child: SvgPicture.asset(
+                                      iconPath,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                ),
+                                Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        difficulty,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          decoration: isCompleted
+                                              ? TextDecoration.lineThrough
+                                              : null,
+                                        ),
+                                      ),
+                                      if (isCompleted)
+                                        const Icon(
+                                          Icons.check_circle,
+                                          color: Colors.green,
+                                          size: 28,
+                                        ),
+                                      if (!isCompleted && isCurrentWeek)
+                                        const Text(
+                                          'New',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.red,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                  // Play next unplayed button
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 56),
+                      ),
+                      onPressed: nextIndex == null
+                          ? null
+                          : () => _playPuzzle(nextIndex),
+                      child: Text(
+                        nextIndex == null
+                            ? 'Week Complete! (Tap any puzzle to replay)'
+                            : 'Play Next Unplayed Puzzle',
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          // Play next unplayed button
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 56),
-              ),
-              onPressed: nextIndex == null
-                  ? null
-                  : () => _playPuzzle(nextIndex),
-              child: Text(
-                nextIndex == null
-                    ? 'Week Complete! (Tap any puzzle to replay)'
-                    : 'Play Next Unplayed Puzzle',
-                style: const TextStyle(fontSize: 18),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
