@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
+import 'package:sqwordlex/widgets/my_scaffold.dart';
 
 import '../models/game_state.dart';
 import '../widgets/word_grid.dart';
@@ -268,8 +269,11 @@ class _GameplayScreenState extends State<GameplayScreen>
 
         String title = 'Play SqwordleX (${gameState.difficulty})';
 
-        return Scaffold(
-          appBar: AppBar(title: Text(title)),
+        return MyScaffold(
+          appBar: AppBar(
+            title: Text(title),
+            backgroundColor: Colors.transparent,
+          ),
           body: Column(
             children: [
               Stack(

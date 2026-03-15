@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sqwordlex/widgets/my_scaffold.dart';
 import 'main_screen.dart';
 
 class SplashScreen extends StatefulWidget {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sqwordlex/widgets/my_scaffold.dart';
 
 import '../models/game_state.dart';
 import 'main_screen.dart';
@@ -23,7 +24,7 @@ class EndGameScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return MyScaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

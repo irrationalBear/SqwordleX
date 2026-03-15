@@ -32,3 +32,4 @@ flutter:
     - assets/data/matches-2.json
     - assets/data/matches-3.json
     - assets/icons/
+    - assets/backgrounds/

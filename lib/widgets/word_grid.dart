@@ -162,12 +162,14 @@ class WordGrid extends StatelessWidget {
                                   )
                                 : null, // Thicker border for selected
                             color: isActive
-                                ? (color ?? Colors.white)
-                                : Colors.white,
+                                ? Colors.white
+                                : Colors.white.withValues(alpha: 0.3),
                             boxShadow: isCurrent
                                 ? [
                                     BoxShadow(
-                                      color: Colors.orange.withOpacity(0.6),
+                                      color: Colors.orange.withValues(
+                                        alpha: 0.6,
+                                      ),
                                       blurRadius: 6.0,
                                       spreadRadius: 4.0,
                                     ),

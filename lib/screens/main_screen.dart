@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqwordlex/widgets/my_scaffold.dart';
 import 'dart:convert';
 
 import 'game_select_screen.dart';
@@ -82,7 +83,7 @@ class _MainScreenState extends State<MainScreen>
       Duration(days: now.weekday - DateTime.monday),
     );
     int weekID = (curWeek.difference(DateTime(2026, 1, 1)).inDays ~/ 7) + 1;
-    bool finishedPlay = true;
+    bool finishedPlay = false;
 
     final prefs = await SharedPreferences.getInstance();
     final String jsonStr = prefs.getString('weekly_completed') ?? '{}';
@@ -91,6 +92,7 @@ class _MainScreenState extends State<MainScreen>
     decoded.forEach((strKey, value) {
       if (int.parse(strKey) == weekID) {
         final List<dynamic> dynList = value as List;
+        finishedPlay = true;
         final List<bool> boolList = dynList.map((e) => e as bool).toList();
         boolList.forEach((isComplete) {
           if (!isComplete) finishedPlay = false;
@@ -152,6 +154,7 @@ class _MainScreenState extends State<MainScreen>
             onPressed: onPressed,
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 48),
+              backgroundColor: Colors.white.withValues(alpha: 0.5),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
@@ -184,7 +187,7 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return MyScaffold(
       body: SafeArea(
         child: Center(
           child: FittedBox(

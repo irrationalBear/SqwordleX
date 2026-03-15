@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqwordlex/widgets/my_scaffold.dart';
 
 import '../main.dart'; // For routeObserver
 import 'gameplay_screen.dart';
@@ -143,10 +144,18 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen>
 
       dayTiles.add(
         Card(
-          color: isCompleted
+          color: isSelected
+              ? Colors.blue[100]
+              : isCompleted
               ? Colors.grey[200]
-              : (isSelected ? Colors.blue[100] : Colors.white),
-          elevation: isCompleted || isFuture ? 1 : 4,
+              : isFuture
+              ? Colors.grey.withValues(alpha: 0.8)
+              : Colors.grey[50],
+          elevation: isFuture
+              ? 1
+              : isCompleted
+              ? 2
+              : 4,
           child: InkWell(
             onTap: isFuture
                 ? null
@@ -206,8 +215,11 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen>
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Daily Challenges')),
+    return MyScaffold(
+      appBar: AppBar(
+        title: const Text('Daily Challenges'),
+        backgroundColor: Colors.transparent,
+      ),
       body: SafeArea(
         child: Center(
           child: FittedBox(
@@ -217,7 +229,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen>
               width:
                   820.0, // ← adjust to your preferred max portrait width (360–420 common)
               height:
-                  900.0, // ← tune this: portrait natural height + margin (start here, measure & adjust)
+                  1000.0, // ← tune this: portrait natural height + margin (start here, measure & adjust)
               child: Column(
                 children: [
                   // Month navigation
@@ -300,11 +312,14 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen>
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 56),
+                        backgroundColor: selectedDate == null
+                            ? Colors.white.withValues(alpha: 0.7)
+                            : Colors.grey[50],
                       ),
                       onPressed:
                           (selectedDate == null ||
                               selectedDate!.isAfter(DateTime.now()))
-                          ? null
+                          ? () {}
                           : () {
                               final int seed =
                                   selectedDate!.year * 10000 +

@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqwordlex/widgets/my_scaffold.dart';
 
 import '../main.dart'; // For routeObserver
 import 'gameplay_screen.dart';
@@ -172,8 +173,11 @@ class _WeeklyChallengeScreenState extends State<WeeklyChallengeScreen>
 
     final int? nextIndex = _findNextUnplayedIndex();
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Weekly Challenges')),
+    return MyScaffold(
+      appBar: AppBar(
+        title: const Text('Weekly Challenges'),
+        backgroundColor: Colors.transparent,
+      ),
       body: SafeArea(
         child: Center(
           child: FittedBox(
@@ -269,13 +273,13 @@ class _WeeklyChallengeScreenState extends State<WeeklyChallengeScreen>
                               ? Colors.deepOrange[50]
                               : isCompleted
                               ? Colors.grey[200]
-                              : Colors.green[50],
+                              : Colors.grey[50],
                           elevation: nextIndex == null
                               ? 4
                               : isCompleted
                               ? 2
                               : 6,
-                          shadowColor: nextIndex == null ? Colors.green : null,
+                          shadowColor: nextIndex == null ? Colors.white : null,
                           child: InkWell(
                             onTap: () => _playPuzzle(index),
                             child: Stack(
@@ -334,9 +338,10 @@ class _WeeklyChallengeScreenState extends State<WeeklyChallengeScreen>
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 56),
+                        backgroundColor: Colors.grey[50],
                       ),
                       onPressed: nextIndex == null
-                          ? null
+                          ? () {}
                           : () => _playPuzzle(nextIndex),
                       child: Text(
                         nextIndex == null

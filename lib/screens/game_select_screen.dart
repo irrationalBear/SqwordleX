@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'gameplay_screen.dart';
+import '../widgets/my_scaffold.dart';
 
 class GameSelectScreen extends StatelessWidget {
   const GameSelectScreen({super.key});
@@ -16,6 +17,7 @@ class GameSelectScreen extends StatelessWidget {
     return Card(
       elevation: 10,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      color: Colors.white.withValues(alpha: 0.5),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
@@ -31,7 +33,7 @@ class GameSelectScreen extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             Opacity(
-              opacity: 0.15,
+              opacity: 0.30,
               child: SvgPicture.asset(iconPath, fit: BoxFit.contain),
             ),
             Center(
@@ -52,8 +54,11 @@ class GameSelectScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Select Difficulty')),
+    return MyScaffold(
+      appBar: AppBar(
+        title: const Text('Select Difficulty'),
+        backgroundColor: Colors.transparent,
+      ),
       body: SafeArea(
         child: Center(
           child: FittedBox(
