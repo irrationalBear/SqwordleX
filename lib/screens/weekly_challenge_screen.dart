@@ -8,6 +8,7 @@ import 'package:sqwordlex/widgets/my_scaffold.dart';
 
 import '../main.dart'; // For routeObserver
 import 'gameplay_screen.dart';
+import '../services/sound_manager.dart';
 
 DateTime weeklyEpoch = DateTime(2026, 1, 1);
 const int puzzlesPerWeek = 36; // 6x6 grid
@@ -137,6 +138,7 @@ class _WeeklyChallengeScreenState extends State<WeeklyChallengeScreen>
     final int weekId = getWeekId(currentWeekStart);
     final int seed = getSeedForPuzzle(weekId, puzzleIndex);
 
+    SoundManager().playButton();
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => GameplayScreen(
@@ -201,6 +203,7 @@ class _WeeklyChallengeScreenState extends State<WeeklyChallengeScreen>
                               icon: const Icon(Icons.chevron_left),
                               onPressed: canGoPrevious
                                   ? () {
+                                      SoundManager().playButton();
                                       setState(() {
                                         currentWeekStart = previousWeekStart;
                                       });
@@ -231,6 +234,7 @@ class _WeeklyChallengeScreenState extends State<WeeklyChallengeScreen>
                               icon: const Icon(Icons.chevron_right),
                               onPressed: canGoNext
                                   ? () {
+                                      SoundManager().playButton();
                                       setState(() {
                                         currentWeekStart = nextWeekStart;
                                       });

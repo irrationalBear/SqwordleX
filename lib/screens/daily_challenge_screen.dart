@@ -7,6 +7,7 @@ import 'package:sqwordlex/widgets/my_scaffold.dart';
 
 import '../main.dart'; // For routeObserver
 import 'gameplay_screen.dart';
+import '../services/sound_manager.dart';
 
 String _getMonthName(int month) {
   const months = [
@@ -160,6 +161,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen>
             onTap: isFuture
                 ? null
                 : () {
+                    SoundManager().playButton();
                     setState(() {
                       selectedDate = thisDate;
                     });
@@ -241,6 +243,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen>
                         IconButton(
                           icon: const Icon(Icons.chevron_left),
                           onPressed: () {
+                            SoundManager().playButton();
                             setState(() {
                               currentMonth = DateTime(
                                 currentMonth.year,
@@ -264,6 +267,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen>
                                   currentMonth.year == DateTime.now().year
                               ? null
                               : () {
+                                  SoundManager().playButton();
                                   setState(() {
                                     currentMonth = DateTime(
                                       currentMonth.year,
@@ -326,6 +330,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen>
                                   selectedDate!.month * 100 +
                                   selectedDate!.day;
 
+                              SoundManager().playButton();
                               Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (_) => GameplayScreen(

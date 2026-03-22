@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'game_select_screen.dart';
 import 'daily_challenge_screen.dart';
 import 'weekly_challenge_screen.dart';
+import '../services/sound_manager.dart';
 
 enum BadgeType { none, unplayed, completed }
 
@@ -219,6 +220,7 @@ class _MainScreenState extends State<MainScreen>
                         text: 'Play Game',
                         icon: Icons.play_circle_outlined,
                         onPressed: () {
+                          SoundManager().playButton();
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -233,6 +235,7 @@ class _MainScreenState extends State<MainScreen>
                         text: 'Daily Challenge',
                         icon: Icons.calendar_today,
                         onPressed: () {
+                          SoundManager().playButton();
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -253,6 +256,7 @@ class _MainScreenState extends State<MainScreen>
                         text: 'Weekly Challenge',
                         icon: Icons.date_range,
                         onPressed: () {
+                          SoundManager().playButton();
                           Navigator.push(
                             context,
                             MaterialPageRoute(

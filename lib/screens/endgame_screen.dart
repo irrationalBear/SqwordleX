@@ -5,6 +5,7 @@ import 'package:sqwordlex/widgets/my_scaffold.dart';
 import '../models/game_state.dart';
 import 'main_screen.dart';
 import 'gameplay_screen.dart';
+import '../services/sound_manager.dart';
 
 class EndGameScreen extends StatelessWidget {
   final bool isPuzzleSolved;
@@ -97,6 +98,7 @@ class EndGameScreen extends StatelessWidget {
   }
 
   void _startNewGame(BuildContext context, String? difficulty) {
+    SoundManager().playButton();
     Navigator.pop(context);
     final gameState = Provider.of<GameState>(context, listen: false);
     gameState.newGame(difficulty: difficulty);
@@ -105,6 +107,7 @@ class EndGameScreen extends StatelessWidget {
   void _getAnotherLife(BuildContext context) {
     final gameState = Provider.of<GameState>(context, listen: false);
     gameState.addExtraGuess();
+    SoundManager().playButton();
     Navigator.popUntil(
       context,
       (route) =>
@@ -114,6 +117,7 @@ class EndGameScreen extends StatelessWidget {
   }
 
   void _navigateToMain(BuildContext context) {
+    SoundManager().playButton();
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (_) => const MainScreen()),

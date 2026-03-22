@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'gameplay_screen.dart';
 import '../widgets/my_scaffold.dart';
+import '../services/sound_manager.dart';
 
 class GameSelectScreen extends StatelessWidget {
   const GameSelectScreen({super.key});
@@ -21,6 +22,7 @@ class GameSelectScreen extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
+          SoundManager().playButton();
           Navigator.push(
             context,
             MaterialPageRoute(

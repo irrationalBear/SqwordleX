@@ -3,11 +3,14 @@ import 'package:provider/provider.dart';
 
 import 'models/game_state.dart';
 import 'screens/splash_screen.dart'; // New import
+import 'services/sound_manager.dart';
 
 final RouteObserver<ModalRoute<void>> routeObserver =
     RouteObserver<ModalRoute<void>>();
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SoundManager().init();
   runApp(const SquordleXApp());
 }
 

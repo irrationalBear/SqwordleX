@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sqwordlex/widgets/my_scaffold.dart';
 import 'main_screen.dart';
+import '../services/sound_manager.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -24,6 +24,7 @@ class _SplashScreenState extends State<SplashScreen>
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
     );
+    SoundManager().playSplash();
     _animationController.forward();
 
     // Navigate to main screen after delay

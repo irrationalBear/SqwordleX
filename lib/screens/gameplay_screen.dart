@@ -8,6 +8,7 @@ import '../widgets/word_grid.dart';
 import '../widgets/keyboard.dart';
 import '../widgets/guess_list.dart';
 import 'endgame_screen.dart';
+import '../services/sound_manager.dart';
 
 class CurrentGuessDisplay extends StatelessWidget {
   final String currentGuess;
@@ -87,6 +88,7 @@ class _GameplayScreenState extends State<GameplayScreen>
   @override
   void initState() {
     super.initState();
+    SoundManager().playGameStart();
     _initializeAnimations();
     final gameState = Provider.of<GameState>(context, listen: false);
     if (widget.fixedSeed != null || widget.difficulty != null) {
@@ -188,7 +190,10 @@ class _GameplayScreenState extends State<GameplayScreen>
 
   void _shakeOnInvalidGuess(String guess, String target) {
     if (guess != target) {
+      SoundManager().playWrongGuess();
       _shakeController.forward().then((_) => _shakeController.reset());
+    } else {
+      SoundManager().playCorrectGuess();
     }
   }
 
@@ -231,6 +236,7 @@ class _GameplayScreenState extends State<GameplayScreen>
     } else {
       return; // Not on a word
     }
+    SoundManager().playButton();
     gameState.setCurrentSide(newSide);
   }
 
@@ -252,6 +258,9 @@ class _GameplayScreenState extends State<GameplayScreen>
               gameState.markDailyCompleted();
               gameState.markWeeklyPuzzleCompleted();
             });
+            SoundManager().playWin();
+          } else {
+            SoundManager().playLoss();
           }
 
           return EndGameScreen(
@@ -300,7 +309,10 @@ class _GameplayScreenState extends State<GameplayScreen>
                   Positioned(
                     right: 16.0,
                     child: ElevatedButton(
-                      onPressed: () => gameState.useHint(),
+                      onPressed: () {
+                        SoundManager().playButton();
+                        gameState.useHint();
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: gameState.CanHint()
                             ? null
@@ -354,12 +366,13 @@ class _GameplayScreenState extends State<GameplayScreen>
               ),
               Keyboard(
                 onKeyPressed: (key) {
+                  SoundManager().playKeyboard();
                   if (key == 'ENTER') {
+                    String currentGuess = gameState.currentGuess;
+                    String targetWord =
+                        gameState.targetWords[gameState.currentSide];
                     if (gameState.submitGuess()) {
-                      _shakeOnInvalidGuess(
-                        gameState.currentGuess,
-                        gameState.targetWords[gameState.currentSide],
-                      );
+                      _shakeOnInvalidGuess(currentGuess, targetWord);
                     }
                     if (gameState.isGameOver) {
                       setState(() {
