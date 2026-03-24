@@ -24,6 +24,7 @@ class _MainScreenState extends State<MainScreen>
   bool dailyHasUnplayed = true;
   bool weeklyHasUnplayed = true;
   int curDay = DateTime.now().day;
+  bool _isMuted = false; // ← new
 
   @override
   void initState() {
@@ -31,6 +32,7 @@ class _MainScreenState extends State<MainScreen>
     WidgetsBinding.instance.addObserver(this);
     _loadDailyStatus();
     _loadWeeklyStatus();
+    _loadMuteState(); // ← new
 
     Timer.periodic(const Duration(seconds: 1), (timer) {
       int day = DateTime.now().day;
@@ -40,6 +42,15 @@ class _MainScreenState extends State<MainScreen>
         curDay = day;
       }
     });
+  }
+
+  Future<void> _loadMuteState() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _isMuted = prefs.getBool('sound_muted') ?? false;
+      });
+    }
   }
 
   @override
@@ -190,95 +201,122 @@ class _MainScreenState extends State<MainScreen>
   Widget build(BuildContext context) {
     return MyScaffold(
       body: SafeArea(
-        child: Center(
-          child: FittedBox(
-            fit: BoxFit.contain,
-            alignment: Alignment.center,
-            child: SizedBox(
-              width:
-                  450.0, // ← your preferred max width (you had 300 earlier — change to 300 if you prefer)
-              height:
-                  900.0, // ← tune this: run in portrait, measure the natural height of the column (add a temporary print or use DevTools), then set ~50px higher than that value
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                child: IntrinsicWidth(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const Text(
-                        'SqwordleX',
-                        style: TextStyle(
-                          fontSize: 48,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2.0,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 80),
-                      _buildMenuButton(
-                        text: 'Play Game',
-                        icon: Icons.play_circle_outlined,
-                        onPressed: () {
-                          SoundManager().playButton();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const GameSelectScreen(),
+        child: Stack(
+          children: [
+            // Your existing scaled main menu (unchanged)
+            Center(
+              child: FittedBox(
+                fit: BoxFit.contain,
+                alignment: Alignment.center,
+                child: SizedBox(
+                  width: 450.0,
+                  height: 900.0,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                    child: IntrinsicWidth(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Text(
+                            'SqwordleX',
+                            style: TextStyle(
+                              fontSize: 48,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 2.0,
                             ),
-                          );
-                        },
-                        badgeType: BadgeType.none,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 80),
+                          _buildMenuButton(
+                            text: 'Play Game',
+                            icon: Icons.play_circle_outlined,
+                            onPressed: () {
+                              SoundManager().playButton();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const GameSelectScreen(),
+                                ),
+                              );
+                            },
+                            badgeType: BadgeType.none,
+                          ),
+                          const SizedBox(height: 40),
+                          _buildMenuButton(
+                            text: 'Daily Challenge',
+                            icon: Icons.calendar_today,
+                            onPressed: () {
+                              SoundManager().playButton();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const DailyChallengeScreen(),
+                                ),
+                              ).then((_) {
+                                _loadDailyStatus();
+                                _loadWeeklyStatus();
+                              });
+                            },
+                            badgeType: dailyHasUnplayed
+                                ? BadgeType.unplayed
+                                : BadgeType.completed,
+                          ),
+                          const SizedBox(height: 40),
+                          _buildMenuButton(
+                            text: 'Weekly Challenge',
+                            icon: Icons.date_range,
+                            onPressed: () {
+                              SoundManager().playButton();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const WeeklyChallengeScreen(),
+                                ),
+                              ).then((_) {
+                                _loadDailyStatus();
+                                _loadWeeklyStatus();
+                              });
+                            },
+                            badgeType: weeklyHasUnplayed
+                                ? BadgeType.unplayed
+                                : BadgeType.completed,
+                          ),
+                          const SizedBox(height: 40),
+                        ],
                       ),
-                      const SizedBox(height: 40),
-                      _buildMenuButton(
-                        text: 'Daily Challenge',
-                        icon: Icons.calendar_today,
-                        onPressed: () {
-                          SoundManager().playButton();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const DailyChallengeScreen(),
-                            ),
-                          ).then((_) {
-                            _loadDailyStatus();
-                            _loadWeeklyStatus();
-                          });
-                        },
-                        badgeType: dailyHasUnplayed
-                            ? BadgeType.unplayed
-                            : BadgeType.completed,
-                      ),
-                      const SizedBox(height: 40),
-                      _buildMenuButton(
-                        text: 'Weekly Challenge',
-                        icon: Icons.date_range,
-                        onPressed: () {
-                          SoundManager().playButton();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const WeeklyChallengeScreen(),
-                            ),
-                          ).then((_) {
-                            _loadDailyStatus();
-                            _loadWeeklyStatus();
-                          });
-                        },
-                        badgeType: weeklyHasUnplayed
-                            ? BadgeType.unplayed
-                            : BadgeType.completed,
-                      ),
-                      const SizedBox(height: 40),
-                    ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
+
+            // Mute button – bottom right, always visible, does NOT scale
+            Positioned(
+              bottom: 24,
+              right: 24,
+              child: FloatingActionButton.small(
+                onPressed: () async {
+                  await SoundManager().toggleMute();
+                  final prefs = await SharedPreferences.getInstance();
+                  final newMuted = prefs.getBool('sound_muted') ?? false;
+                  if (mounted) {
+                    setState(() => _isMuted = newMuted);
+                  }
+                },
+                backgroundColor: Colors.white.withValues(alpha: 0.85),
+                elevation: 6,
+                child: Icon(
+                  _isMuted ? Icons.volume_off : Icons.volume_up,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 28,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

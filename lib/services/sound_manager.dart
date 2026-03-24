@@ -1,7 +1,8 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SoundManager {
+class SoundManager with WidgetsBindingObserver {
   static final SoundManager _instance = SoundManager._internal();
   factory SoundManager() => _instance;
   SoundManager._internal();
@@ -15,7 +16,7 @@ class SoundManager {
     final prefs = await SharedPreferences.getInstance();
     _muted = prefs.getBool('sound_muted') ?? false;
 
-    // Preload everything for instant playback
+    // Preload effects
     await _effects.setSource(AssetSource('sounds/button_press.mp3'));
     await _effects.setSource(AssetSource('sounds/keyboard_click.mp3'));
     await _effects.setSource(AssetSource('sounds/wrong_guess.mp3'));
@@ -29,6 +30,19 @@ class SoundManager {
     await _music.setSource(AssetSource('sounds/ambient_loop.mp3'));
 
     if (!_muted) _music.play(AssetSource('sounds/ambient_loop.mp3'));
+
+    // ← NEW: Start listening to app lifecycle globally
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
+      _music.pause();
+    } else if (state == AppLifecycleState.resumed) {
+      if (!_muted) _music.resume();
+    }
   }
 
   Future<void> toggleMute() async {
@@ -55,10 +69,5 @@ class SoundManager {
   void _play(String path) {
     if (_muted) return;
     _effects.play(AssetSource(path));
-  }
-
-  void pauseMusic() => _music.pause();
-  void resumeMusic() {
-    if (!_muted) _music.resume();
   }
 }
