@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'models/game_state.dart';
@@ -23,7 +24,10 @@ class SquordleXApp extends StatelessWidget {
       create: (context) => GameState(),
       child: MaterialApp(
         title: 'SqwordleX',
-        theme: ThemeData(primarySwatch: Colors.blue),
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          fontFamily: GoogleFonts.fredoka().fontFamily, // ← playful & readable
+        ),
         home: const SplashScreen(),
         debugShowCheckedModeBanner: false,
         navigatorObservers: [routeObserver], // NEW: enables RouteAware
